@@ -1,18 +1,27 @@
-//import{usestate} from 'react'
-import {BrowserRouter , Route, Routes} from 'react-router-dom'
-import Home from './components/Home.jsx'
-import HeroBanner from './components/HeroBanner.jsx'
-import ShopSection from './components/ShopSection.jsx'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ProductPage from "./components/ProductPage";
+import AddressPage from "./components/AddressPage";
+
 function App() {
   return (
-    <>
-      
-          <Home/>
-          <HeroBanner/>
-          <ShopSection/>
+    <Router>
+      <Routes>
+        {/*Home page*/}
 
-    </>
-  )
+        <Route path="/home" element={<>
+        < Home/>
+        
+       
+        </>} />
+
+        {/* Cart page route */}
+        <Route path="/" element={<ProductPage />} />
+
+        {/* Address page route */}
+        <Route path="/address" element={<AddressPage />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
