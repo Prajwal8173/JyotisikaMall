@@ -1,29 +1,27 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./components/Home";             // ✅ Import Home
 import ProductPage from "./components/ProductPage";
+import CartPage from "./components/CartPage";     // ✅ Import CartPage
 import AddressPage from "./components/AddressPage";
-import ProductPage from "./components/ProductPage";
 import AuthPage from "./components/user/login";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/*Home page*/}
+        {/* Home page */}
+        <Route path="/home" element={<Home />} />
 
-        <Route path="/home" element={<>
-        < Home/>
-        
-       
-        </>} />
-
-        {/* user route */}
+        {/* User authentication */}
         <Route path="/user/login" element={<AuthPage />} />
-        {/* Product page route */}
+
+        {/* Product page */}
         <Route path="/product" element={<ProductPage />} />
-        {/* Cart page route */}
+
+        {/* Cart page (dynamic id) */}
         <Route path="/cart/:id" element={<CartPage />} />
 
-        {/* Address page route */}
+        {/* Address page */}
         <Route path="/address" element={<AddressPage />} />
       </Routes>
     </Router>
