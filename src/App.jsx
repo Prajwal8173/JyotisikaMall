@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import CartPage from "./components/ProductPage";
+import ProductPage from "./components/ProductPage";
 import AddressPage from "./components/AddressPage";
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
     <Router>
       <Routes>
         {/* Cart page route */}
-        <Route path="/" element={<CartPage />} />
+        <Route path="/" element={<ProductPage />} />
 
         {/* Address page route */}
         <Route path="/address" element={<AddressPage />} />
