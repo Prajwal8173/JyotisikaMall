@@ -1,13 +1,19 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CartPage from "./components/ProductPage";
 import AddressPage from "./components/AddressPage";
+import ProductPage from "./components/ProductPage";
+import AuthPage from "./components/user/login";
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* user route */}
+        <Route path="/user/login" element={<AuthPage />} />
+        {/* Product page route */}
+        <Route path="/product" element={<ProductPage />} />
         {/* Cart page route */}
-        <Route path="/" element={<CartPage />} />
+        <Route path="/cart/:id" element={<CartPage />} />
 
         {/* Address page route */}
         <Route path="/address" element={<AddressPage />} />

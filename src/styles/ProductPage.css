@@ -1,0 +1,287 @@
+/* ---------- Global ---------- */
+.product-page {
+  font-family: "Poppins", sans-serif;
+  padding: 30px;
+  color: #1a1a1a;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* ---------- Product Main Section ---------- */
+.product-main {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 50px;
+}
+
+.product-images {
+  flex: 1;
+  text-align: center;
+}
+
+.main-image {
+  width: 100%;
+  max-width: 450px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.thumbnail-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.thumb {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.thumb:hover,
+.thumb.active {
+  border-color: #3c2a65;
+  transform: scale(1.05);
+}
+
+.product-info {
+  flex: 1;
+}
+
+.product-info h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.product-info .desc {
+  color: #444;
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.price-section {
+  margin-bottom: 20px;
+}
+
+.discount-price {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #3db37b;
+  margin-right: 12px;
+}
+
+.original-price {
+  font-size: 1rem;
+  text-decoration: line-through;
+  color: #999;
+}
+
+.buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.buttons button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-to-cart {
+  background: #3c2a65;
+  color: #fff;
+}
+
+.add-to-cart:hover {
+  background: #2a1d48;
+}
+
+.buy-now {
+  background: #ffd766;
+  color: #1a1a1a;
+}
+
+.buy-now:hover {
+  background: #e6c456;
+}
+
+/* ---------- Description Section ---------- */
+.description {
+  margin: 50px 0;
+}
+
+.description h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.tagline {
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: #3c2a65;
+}
+
+.description-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.desc-item {
+  background: #f8f7ff;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 500;
+  color: #3c2a65;
+}
+
+.desc-icons {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+/* ---------- Promise Section ---------- */
+.promise {
+  background: #fef8e7;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+.promise h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.promise p {
+  margin-bottom: 20px;
+  color: #555;
+}
+
+.promise-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+.promise-item {
+  background: white;
+  padding: 12px 18px;
+  border-radius: 20px;
+  font-weight: 500;
+  color: #3c2a65;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* ---------- Related Products ---------- */
+.related h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.related-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.related-card {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s;
+}
+
+.related-card:hover {
+  transform: translateY(-5px);
+}
+
+.related-card img {
+  width: 100%;
+  max-width: 180px;
+  margin-bottom: 10px;
+}
+
+.related-card h4 {
+  font-size: 1.1rem;
+  margin: 5px 0;
+}
+
+.related-card p {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.related-card button {
+  background: #3c2a65;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.related-card button:hover {
+  background: #2a1d48;
+}
+
+/* ---------- Reviews Section ---------- */
+.reviews {
+  margin: 50px 0;
+}
+
+.reviews h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.review-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.review-card {
+  background: #f8f7ff;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.06);
+}
+
+.review-card img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  margin-bottom: 12px;
+}
+
+.review-card p {
+  font-style: italic;
+  margin-bottom: 8px;
+}
+
+.review-card span {
+  font-weight: 500;
+  color: #3c2a65;
+}
