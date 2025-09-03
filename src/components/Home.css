@@ -1,0 +1,13 @@
+.icon-bar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  text-align: center;
+  color: black;
+  padding: 10px;
+}
+.icon-img {
+  width: 31px;
+  height: 31px;
+  object-fit: fill;
+
+}
