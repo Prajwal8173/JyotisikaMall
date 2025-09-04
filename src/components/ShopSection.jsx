@@ -1,154 +1,83 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 const ShopSection = () => {
-    const [products, setProducts] = useState([]);
-    const [energyStones, setEnergyStones] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]); 
+  useEffect(() => {
+   
+    axios
+      .get("https://jyotisika.in/jyotisika_test/User_Api_Controller/getproduct")
+      .then((response) => {
+        if (response.data.status === "success" && Array.isArray(response.data.data)) {
+          setProducts(response.data.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+      });
+  }, []);
 
-    // Fetch Products from PHP API
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // API call for products
-                const productRes = await axios.get(
-                    "http://localhost/User_Api_Controller/"
-                );
-                console.log("Products API Response:", productRes.data);
+  // ✅ Add to cart handler
+  const handleAddToCart = (product) => {
+    setCart((prevCart) => [...prevCart, product]);
+    alert(`${product.product_name} added to cart!`);
+  };
 
-                // API call for stones
-                const stoneRes = await axios.get("http://localhost/api/stones.php");
-                console.log("Stones API Response:", stoneRes.data);
+  return (
+    <div className="mt-5 text-center container">
+      <h1>Shop Our Best Seller</h1>
+      <div className="row mt-5">
+        {products.map((product) => (
+          <div key={product.product_id} className="col-md-3 col-lg-3 mb-3">
+            <div className="card product-card border-0 text-center h-100">
+              <div className="position-relative">
+                {/* Product image */}
+                <img
+                  src={`https://jyotisika.in/jyotisika_test/uploads/products/${product.product_image}`}
+                  className="card-img-top product-image"
+                  alt={product.product_name}
+                />
 
-                // Handle array or object with `data`
-                const productData = Array.isArray(productRes.data)
-                    ? productRes.data
-                    : productRes.data.data || [];
+                {/* Discount (if exists) */}
+                {product.discount_price && (
+                  <span className="discount-badge">
+                    ₹{product.product_price - product.discount_price} OFF
+                  </span>
+                )}
+              </div>
 
-                const stoneData = Array.isArray(stoneRes.data)
-                    ? stoneRes.data
-                    : stoneRes.data.data || [];
+              <div className="card-body d-flex flex-column">
+                <h6 className="card-title">{product.product_name}</h6>
 
-                setProducts(productData);
-                setEnergyStones(stoneData);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
+                <p className="small text-muted">
+                  {product.product_description?.substring(0, 50)}...
+                </p>
 
-        fetchData();
-    }, []);
-
-
-    const getCurrentSlideProducts = () => {
-        return products.slice(0, 8);
-    };
-
-    const getCurrentStoneProducts = () => {
-        return energyStones.slice(0, 4);
-    };
-
-    return (
-        <div>
-            {/* Best Sellers */}
-            <div className="container mt-5 text-center">
-                <h1>Shop Our Best Seller</h1>
-                <div className="product-carousel-container position-relative">
-                    <div className="product-carousel-wrapper">
-                        <div className="row">
-                            {getCurrentSlideProducts().map((product, index) => (
-                                <div key={product.id || index} className="col-md-3 col-lg-3 mb-3">
-                                    <div
-                                        className={`card product-card border-0 text-center h-100 ${index === 3 ? "new-card" : ""
-                                            }`}
-                                    >
-                                        <div className="position-relative">
-                                            <img
-                                                src={product.image || "https://via.placeholder.com/200"}
-                                                className="card-img-top product-image"
-                                                alt={product.name || "Product"}
-                                            />
-                                            {product.discount && (
-                                                <span className="discount-badge">{product.discount}</span>
-                                            )}
-                                            {index === 3 && <span className="new-badge">NEW</span>}
-                                        </div>
-                                        <div className="card-body d-flex flex-column">
-                                            <h6 className="card-title">{product.name}</h6>
-                                            <div className="rating mb-2">
-                                                {[...Array(product.rating || 0)].map((_, i) => (
-                                                    <span key={i} className="star">⭐</span>
-                                                ))}
-                                            </div>
-                                            <div className="price-section mt-auto">
-                                                <span className="current-price">₹{product.price || 0}</span>
-                                                {product.originalPrice &&
-                                                    product.price !== product.originalPrice && (
-                                                        <del className="original-price">₹{product.originalPrice}</del>
-                                                    )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                    </div>
+                {/* Price Section */}
+                <div className="price-section mt-auto">
+                  <span className="current-price">₹{product.discount_price}</span>
+                  {product.product_price !== product.discount_price && (
+                    <del className="original-price">₹{product.product_price}</del>
+                  )}
                 </div>
-            </div>
 
-            {/* Energy Stones Section */}
-            <div className="container mt-5">
-                <h1 className="text-center mb-4">Energy Stones</h1>
-                <div className="product-carousel-container position-relative">
-                    <div className="product-carousel-wrapper">
-                        <div className="row">
-                            {getCurrentStoneProducts().map((stone, index) => (
-                                <div key={stone.id || index} className="col-md-3 col-lg-3 mb-3">
-                                    <div
-                                        className={`card product-card border-0 text-center h-100 ${index === 3 ? "new-card stone-card" : "stone-card"
-                                            }`}
-                                    >
-                                        <div className="position-relative">
-                                            <img
-                                                src={stone.image || "https://via.placeholder.com/200"}
-                                                className="card-img-top product-image"
-                                                alt={stone.name || "Stone"}
-                                            />
-                                            {stone.discount && (
-                                                <span className="discount-badge">{stone.discount}</span>
-                                            )}
-                                            {index === 3 && (
-                                                <span className="new-badge stone-new-badge">NEW</span>
-                                            )}
-                                        </div>
-                                        <div className="card-body d-flex flex-column">
-                                            <h6 className="card-title">{stone.name}</h6>
-                                            <div className="rating mb-2">
-                                                {[...Array(stone.rating || 0)].map((_, i) => (
-                                                    <span key={i} className="star">⭐</span>
-                                                ))}
-                                            </div>
-                                            <div className="price-section mt-auto">
-                                                <span className="current-price">
-                                                    ₹{stone.price || 0}
-                                                </span>
-                                                {stone.originalPrice &&
-                                                    stone.price !== stone.originalPrice && (
-                                                        <del className="original-price">
-                                                            ₹{stone.originalPrice}
-                                                        </del>
-                                                    )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+                {/*  Add to Cart button */}
+                <button 
+                  className="btn mt-2" style={{backgroundColor:"#f0c14b", borderColor:"#a88734 #9c7e31 #846a29"}}
+                  onClick={() => handleAddToCart(product)}
+                >  Add to Cart
+                </button>
+
+               
+              </div>
             </div>
-        </div>
-    );
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default ShopSection;
