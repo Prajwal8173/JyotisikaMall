@@ -1,6 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./components/Home";             // ✅ Import Home
 import ProductPage from "./components/ProductPage";
+import CartPage from "./components/CartPage";     // ✅ Import CartPage
 import AddressPage from "./components/AddressPage";
+<<<<<<< HEAD
 import Home from "./components/Home";
 import Herobanner from "./components/Herobanner";
 import ShopSection from "./components/ShopSection";
@@ -14,13 +17,18 @@ import StonesPage from "./components/StonesPage.jsx";
 
 
 import AccountForm from "./components/AccountForm.jsx";
+=======
+import AuthPage from "./components/user/login";
+>>>>>>> 464df24b135a5c124ac490e38ba5334d76067112
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/*Home page*/}
+        {/* Home page */}
+        <Route path="/home" element={<Home />} />
 
+<<<<<<< HEAD
         <Route path="/home" element={<>
         < Home/>
         < Herobanner/>
@@ -46,11 +54,18 @@ function App() {
         < Footer/>
 
         </>} />
+=======
+        {/* User authentication */}
+        <Route path="/user/login" element={<AuthPage />} />
+>>>>>>> 464df24b135a5c124ac490e38ba5334d76067112
 
-        {/* Cart page route */}
-        <Route path="/" element={<ProductPage />} />
+        {/* Product page */}
+        <Route path="/product" element={<ProductPage />} />
 
-        {/* Address page route */}
+        {/* Cart page (dynamic id) */}
+        <Route path="/cart/:id" element={<CartPage />} />
+
+        {/* Address page */}
         <Route path="/address" element={<AddressPage />} />
       </Routes>
     </Router>

@@ -1,351 +1,145 @@
-import React, { useEffect, useState } from "react";
-import "../styles/CartPage.css";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "../styles/ProductPage.css";
 
+export default function ProductPage() {
+  const [products, setProducts] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(0);
 
-const BASE_URL = "https://jyotisika.in/jyotisika_test/User_Api_Controller";
-
-export default function CartPage() {
-  const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [summary, setSummary] = useState({
-    price: 0,
-    discount: 40,
-    shipping: "Free",
-    couponApplied: 0,
-    total: 0,
-    deliveryDate: "01 Feb, 2023",
-  });
-
-  const navigate = useNavigate();
-
-  const handleCheckout = () => {
-    navigate("/address");
+  // 🔹 Helper to build full image path
+  const getImageUrl = (img) => {
+    if (!img) return "";
+    return `https://jyotisika.in/jyotisika_test/uploads/products/${img}`;
   };
 
-  const [couponCode, setCouponCode] = useState("");
-  const [couponMessage, setCouponMessage] = useState("");
-
-  const userId = 7; // replace with real user id
-
-  // Helper: safe map for product details (robust to different API field names)
-  const mapProductDetails = (pd = {}) => {
-    const image =
-      pd.product_image ||
-      pd.product_images?.[0] ||
-      pd.image ||
-      pd.product_img ||
-      pd.product_picture ||
-      "";
-    const name = pd.product_name || pd.name || "Product";
-    const price = parseFloat(pd.product_price || pd.price || pd.product_price_inr || 0);
-    const color = pd.product_color || pd.color || "";
-    const id = pd.product_id || pd.id || "";
-    return { id, name, price: isNaN(price) ? 0 : price, color, image };
-  };
-
- 
+  // Fetch Rudraksha products
   useEffect(() => {
-    async function loadCart() {
-      setLoading(true);
-      try {
-        const cartResp = await fetch(`${BASE_URL}/GetCartData?user_id=${userId}`);
-        const cartJson = await cartResp.json();
-
-        if (cartJson.status !== "success" || !Array.isArray(cartJson.data)) {
-          setCartItems([]);
-          setLoading(false);
-          return;
+    axios
+      .get("https://jyotisika.in/jyotisika_test/User_Api_Controller/show_rudraksh")
+      .then((res) => {
+        if (res.data.status === "success") {
+          setProducts(res.data.data);
         }
+      })
+      .catch((err) => console.error("Error fetching products:", err));
 
-        // For now: fetch product details for each cart item
-        const items = await Promise.all(
-          cartJson.data.map(async (ci) => {
-            // ci likely contains cart_id (id), product_id, quantity
-            const cartId = ci.id || ci.cart_id || ci.cartid || ci.cartId || ci.cart_id;
-            const productId = ci.product_id || ci.productId || ci.productId;
-            const qty = Number(ci.quantity || ci.qty || 1);
+    // Fetch top products
+    axios
+      .get("https://jyotisika.in/jyotisika_test/User_Api_Controller/Get_top_products")
+      .then((res) => {
+        if (res.data.status === "success") {
+          setTopProducts(res.data.data);
+        }
+      })
+      .catch((err) => console.error("Error fetching top products:", err));
 
-            // call get_specific_product
-            try {
-              const detRes = await fetch(
-                `${BASE_URL}/get_specific_product?product_id=${productId}`
-              );
-              const detJson = await detRes.json();
-              // detJson.data might be array or object
-              const raw = Array.isArray(detJson.data) ? detJson.data[0] : detJson.data || {};
-              const details = mapProductDetails(raw);
-
-              // ensure image is a full URL — if API returns relative path, adjust here
-              // (if images are relative like "uploads/..", prepend base domain)
-              let img = details.image || "";
-              if (img && !img.startsWith("http")) {
-                // try to form absolute URL — adjust domain as needed
-                img = img.startsWith("/") ? `https://jyotisika.in${img}` : `https://jyotisika.in/${img}`;
-              }
-              details.image = img || "https://via.placeholder.com/300?text=Product";
-
-              return {
-                cartId,
-                productId,
-                quantity: qty,
-                details,
-              };
-            } catch (err) {
-              // fallback if product fetch fails
-              return {
-                cartId,
-                productId,
-                quantity: qty,
-                details: {
-                  id: productId,
-                  name: "Product",
-                  price: 0,
-                  color: "",
-                  image: "https://via.placeholder.com/300?text=Product",
-                },
-              };
-            }
-          })
-        );
-
-        setCartItems(items);
-        calculateSummary(items, summary.couponApplied);
-      } catch (err) {
-        console.error("Cart load error:", err);
-        setCartItems([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadCart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Fetch reviews
+    axios
+      .get("https://jyotisika.in/jyotisika_test/User_Api_Controller/show_product_feedback_data")
+      .then((res) => {
+        if (res.data.status === "success") {
+          setReviews(res.data.data);
+        }
+      })
+      .catch((err) => console.error("Error fetching reviews:", err));
   }, []);
 
-  // Recalculate summary
-  const calculateSummary = (items, couponApplied = summary.couponApplied) => {
-    // Sum price item by item (price * qty)
-    const price = items.reduce((acc, it) => {
-      const p = Number(it.details?.price || 0);
-      const q = Number(it.quantity || 1);
-      return acc + p * q;
-    }, 0);
+  if (products.length === 0) {
+    return <p>Loading product details...</p>;
+  }
 
-    const discount = summary.discount || 0;
-    let total = price - discount - (couponApplied || 0);
-    if (total < 0) total = 0;
-
-    setSummary((s) => ({ ...s, price, discount, couponApplied, total }));
-  };
-
-  // Update quantity (calls API)
-  const updateQuantity = async (cartId, newQty) => {
-    if (newQty < 1) return;
-    try {
-      await fetch(`${BASE_URL}/updateQuantity`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart_id: cartId, quantity: newQty }),
-      });
-      const updated = cartItems.map((it) =>
-        (it.cartId === cartId || it.cart_id === cartId) ? { ...it, quantity: newQty } : it
-      );
-      setCartItems(updated);
-      calculateSummary(updated, summary.couponApplied);
-    } catch (err) {
-      console.error("updateQuantity error", err);
-    }
-  };
-
-  // Remove item from cart
-  const removeItem = async (cartId) => {
-    try {
-      await fetch(`${BASE_URL}/deleteproductfromcart`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart_id: cartId }),
-      });
-      const updated = cartItems.filter((it) => !(it.cartId === cartId || it.cart_id === cartId));
-      setCartItems(updated);
-      calculateSummary(updated, summary.couponApplied);
-    } catch (err) {
-      console.error("removeItem error", err);
-    }
-  };
-
-  // Apply a coupon (simple local demo: JYOTISIKA gives ₹1499 off)
-  const applyCoupon = (e) => {
-    e.preventDefault();
-    const code = (couponCode || "").trim().toUpperCase();
-    if (!code) {
-      setCouponMessage("Enter coupon code");
-      return;
-    }
-    if (code === "JYOTISIKA") {
-      const couponValue = 1499;
-      setCouponMessage(`Coupon applied: You saved ₹${couponValue}`);
-      calculateSummary(cartItems, couponValue);
-      setCouponCode(code);
-    } else {
-      setCouponMessage("Invalid or expired coupon");
-      // remove any previous coupon
-      calculateSummary(cartItems, 0);
-    }
-  };
+  const mainProduct = products[0]; // for demo, using the first product
 
   return (
-    <div className="cart-page">
-      <div className="cart-container">
-        {/* Left: Items */}
-        <div className="cart-left">
-          <div className="cart-header">
-            <h1 className="title">Cart</h1>
-            <div className="items-count">{cartItems.length} ITEMS</div>
-          </div>
-
-          {loading ? (
-            <div className="empty-note">Loading cart...</div>
-          ) : cartItems.length === 0 ? (
-            <div className="empty-note">Your cart is empty</div>
-          ) : (
-            cartItems.map((item) => (
-              <div className="cart-item" key={item.cartId || item.productId}>
-                <img
-                  src={item.details.image}
-                  alt={item.details.name}
-                  className="product-image"
-                />
-                <div className="item-body">
-                  <div className="item-top">
-                    <div>
-                      <div className="product-name">{item.details.name}</div>
-                      <div className="product-color">
-                        Color: <span className="color-value">{item.details.color || "Default"}</span>
-                      </div>
-                    </div>
-                    <div className="price-block">₹{Number(item.details.price).toFixed(2)}</div>
-                  </div>
-
-                  <div className="item-controls">
-                    <div className="qty-box">
-                      <button
-                        className="qty-btn"
-                        onClick={() => updateQuantity(item.cartId, Number(item.quantity) - 1)}
-                        disabled={item.quantity <= 1}
-                      >
-                        −
-                      </button>
-                      <div className="qty-value">{item.quantity}</div>
-                      <button
-                        className="qty-btn"
-                        onClick={() => updateQuantity(item.cartId, Number(item.quantity) + 1)}
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    <button
-                      className="remove-link"
-                      onClick={() => removeItem(item.cartId)}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-
-          <hr className="divider" />
-
-          <div className="discount-banner">
-            <div className="percent">%</div>
-            <div className="discount-text">
-              10% Instant Discount with Federal Bank Debit Cards on a min spend of $150. TCA
-            </div>
+    <div className="product-page">
+      {/* -------- (1) Product Main Section -------- */}
+      <div className="product-main">
+        <div className="product-images">
+          <img
+            src={getImageUrl(mainProduct.product_image)}
+            alt={mainProduct.product_name}
+            className="main-image"
+          />
+          <div className="thumbnail-row">
+            {[mainProduct.product_image].map((img, i) => (
+              <img
+                key={i}
+                src={getImageUrl(img)}
+                alt="thumb"
+                className={`thumb ${selectedImage === i ? "active" : ""}`}
+                onClick={() => setSelectedImage(i)}
+              />
+            ))}
           </div>
         </div>
 
-        {/* Right: Summary */}
-        <aside className="cart-right">
-          <div className="summary-card">
-            <h2 className="summary-title">Order Summary</h2>
-
-            <div className="summary-row">
-              <span>Price</span>
-              <span>₹{(summary.price || 0).toFixed(2)}</span>
-            </div>
-
-            <div className="summary-row">
-              <span>Discount</span>
-              <span>₹{(summary.discount || 0).toFixed(2)}</span>
-            </div>
-
-            <div className="summary-row">
-              <span>Shipping</span>
-              <span className="shipping">{summary.shipping}</span>
-            </div>
-
-            <div className="summary-row">
-              <span>Coupon Applied</span>
-              <span>₹{(summary.couponApplied || 0).toFixed(2)}</span>
-            </div>
-
-            <div className="summary-hr" />
-
-            <div className="summary-total-row">
-              <span>TOTAL</span>
-              <span className="total-value">₹{(summary.total || 0).toFixed(2)}</span>
-            </div>
-
-            <div className="estimated">
-              Estimated Delivery by <strong>{summary.deliveryDate}</strong>
-            </div>
-
-            {/* Coupon input box (styled like screenshot) */}
-            <form className="coupon-box" onSubmit={applyCoupon}>
-              <input
-                className="coupon-input"
-                placeholder="Coupon Code"
-                value={couponCode}
-                onChange={(e) => {
-                  setCouponCode(e.target.value);
-                  setCouponMessage("");
-                }}
-              />
-              <button className="coupon-tag" type="submit" title="Apply">
-                <svg width="18" height="18" viewBox="0 0 24 24"><path d="M21 10v4a3 3 0 0 1-3 3h-2l-3 3-3-3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h9" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </button>
-            </form>
-            {couponMessage && <div className="coupon-message">{couponMessage}</div>}
-
-            {/* Offers card */}
-            <div className="offer-card" role="region" aria-label="offers">
-              <div className="offer-left">
-                <div className="offer-tag">JYOTISIKAOFFER</div>
-                <div className="offer-text">You save ₹1499</div>
-              </div>
-              <button
-                className="offer-apply"
-                onClick={() => {
-                  setCouponCode("JYOTISIKA");
-                  setCouponMessage("Coupon applied: You saved ₹1499");
-                  calculateSummary(cartItems, 1499);
-                }}
-              >
-                Apply
-              </button>
-            </div>
-
-            <button className="view-offers">View All Offers ›</button>
-
-             <button className="checkout-btn" onClick={handleCheckout}>
-        Proceed to Checkout
-      </button>
+        <div className="product-info">
+          <h1>{mainProduct.product_name}</h1>
+          <p className="desc">{mainProduct.product_description}</p>
+          <div className="price-section">
+            <span className="discount-price">₹{mainProduct.discount_price}</span>
+            <span className="original-price">₹{mainProduct.product_price}</span>
           </div>
-        </aside>
+          <div className="buttons">
+            <button className="add-to-cart">Add to Cart</button>
+            <button className="buy-now">Buy Now</button>
+          </div>
+        </div>
       </div>
+
+      {/* -------- (2) Description Section -------- */}
+      <section className="description">
+        <h2>Description</h2>
+        <p className="tagline">Genuine & Original</p>
+        <div className="description-grid">
+          <div className="desc-item">100% Made in India</div>
+          <div className="desc-item">Return & Exchange</div>
+          <div className="desc-item">Small Actions, Big Changes</div>
+          <div className="desc-item">Care Guidelines</div>
+        </div>
+      </section>
+
+      {/* -------- (3) Jyotisika Promise Section -------- */}
+      <section className="promise">
+        <h2>Jyotisika Promise</h2>
+        <div className="promise-list">
+          <div className="promise-item">⭐ 100% Authentic Products</div>
+          <div className="promise-item">⭐ Certified Rudraksha</div>
+          <div className="promise-item">⭐ Handcrafted with Love</div>
+          <div className="promise-item">⭐ Trusted by 10,000+ Customers</div>
+        </div>
+      </section>
+
+      {/* -------- (4) Top Shopseller Section -------- */}
+      <section className="related">
+        <h2>Top Shopseller</h2>
+        <div className="related-list">
+          {topProducts.map((r) => (
+            <div key={r.product_id} className="related-card">
+              <img src={getImageUrl(r.product_image)} alt={r.product_name} />
+              <h4>{r.product_name}</h4>
+              <p>₹{r.discount_price}</p>
+              <button>Add to Cart</button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* -------- (5) Reviews Section -------- */}
+      <section className="reviews">
+        <h2>{reviews.length}+ Honest Reviews</h2>
+        <div className="review-list">
+          {reviews.map((rev) => (
+            <div key={rev.product_feedback_id} className="review-card">
+              <img src={getImageUrl(rev.user_image)} alt={rev.user_name} />
+              <p>"{rev.message}"</p>
+              <span>- {rev.user_name}</span>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

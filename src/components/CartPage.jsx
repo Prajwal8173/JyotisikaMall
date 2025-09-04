@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaTag } from "react-icons/fa";
-import { Button } from "@/components/ui/button";
+import { Button } from "react-bootstrap";
 
 const BASE_URL = "https://jyotisika.in/jyotisika_test/User_Api_Controller";
 
