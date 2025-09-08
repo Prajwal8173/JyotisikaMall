@@ -1,8 +1,12 @@
-import React from 'react'
-import "../styles/Myaccount.css";
-import rakhi from '../assets/rakhi.png'
-import { useState } from "react";
+import React, { useState } from "react";
+import rakhi from "../assets/rakhi.png";
+import { Table } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import axios from "axios";
 
+
+// initial form state
 const initialFormState = {
     firstName: "",
     lastName: "",
@@ -14,26 +18,78 @@ const initialFormState = {
 };
 
 const Myaccount = ({ onSubmit }) => {
-
-    const [form, setForm] = useState(initialFormState);
+    const [activeTab, setActiveTab] = useState("account"); // sidebar tab
+    const [form, setForm] = useState(initialFormState); // form state
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
+    const [addresses, setAddresses] = useState([]);
+    const [orders, setOrders] = useState([]);
 
+
+
+    // fetch address
+    useEffect(() => {
+        const fetchAddresses = async () => {
+            try {
+                const sessionId = localStorage.getItem("session_id");
+                const response = await axios.post(
+                    "https://jyotisika.in/jyotisika_test/User_Api_Controller/get_delivery_address/",
+                    { session_id: sessionId }
+                );
+
+                if (response.data.status === "success") {
+                    setAddresses(response.data.data);
+                }
+            } catch (error) {
+                console.error(" Error fetching addresses:", error);
+            }
+        };
+
+        fetchAddresses();
+    }, []);
+
+    //  Fetch orders
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const sessionId = localStorage.getItem("session_id");
+                const response = await axios.post(
+                    "https://jyotisika.in/jyotisika_test/User_Api_Controller/showorderedproducts",
+                    { session_id: sessionId }
+                );
+                if (response.data.status === "success") {
+                    setOrders(response.data.data);
+                }
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+            }
+        };
+        fetchOrders();
+    }, []);
+
+    // handle form input change
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        setForm((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
 
+    // validate inputs
     const validate = () => {
         const nextErrors = {};
         if (!form.firstName.trim()) nextErrors.firstName = "First name is required";
         if (!form.lastName.trim()) nextErrors.lastName = "Last name is required";
         if (!form.displayName.trim()) nextErrors.displayName = "Display name is required";
+
         if (!form.email.trim()) {
             nextErrors.email = "Email is required";
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
             nextErrors.email = "Enter a valid email";
         }
+
+        // password validation
         if (form.newPassword || form.confirmPassword || form.oldPassword) {
             if (!form.oldPassword) nextErrors.oldPassword = "Old password is required";
             if (!form.newPassword) nextErrors.newPassword = "New password is required";
@@ -44,10 +100,13 @@ const Myaccount = ({ onSubmit }) => {
                 nextErrors.confirmPassword = "Passwords do not match";
             }
         }
+
         setErrors(nextErrors);
         return Object.keys(nextErrors).length === 0;
     };
 
+
+    // form submit
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
@@ -67,58 +126,266 @@ const Myaccount = ({ onSubmit }) => {
         }
     };
 
+    // error renderer
     const renderError = (field) =>
         errors[field] ? (
             <div className="invalid-feedback d-block">{errors[field]}</div>
         ) : null;
-    return (
-        <div style={{ backgroundColor: "#fefaea" }}>
 
-            {/* Header Navigation - Responsive
-            <div className="container-fluid px-3 px-md-4 py-3" style={{ backgroundColor: "#fefaea" }}>
-                <div className="row align-items-center">
-                    <div className='col-12 col-md-3 col-lg-2'>
-                        <img
-                            src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/WqsbpufRVU/bxn4s0bj_expires_30_days.png"}
-                            className="img-fluid" 
-                            style={{ height: "80px", width: "auto", objectFit: "contain" }}
-                            alt="Logo"
-                        />
-                    </div>
-                    <div className="col-12 col-md-6 col-lg-7 d-none d-md-flex align-items-center" style={{ fontSize: "18px", fontWeight: "500" }}>
-                        <span className="me-3">Products</span>
-                        <img src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/WqsbpufRVU/2eksad0c_expires_30_days.png"} className="me-3" style={{ width: "20px", height: "20px" }} alt="Arrow" />
-                        <span className="me-3">Shop by purpose</span>
-                        <img src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/WqsbpufRVU/0xrbgk8b_expires_30_days.png"} className="me-3" style={{ width: "20px", height: "20px" }} alt="Arrow" />
-                        <span className="me-3">Siddh collection</span>
-                        <img src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/WqsbpufRVU/04d5owxb_expires_30_days.png"} className="me-3" style={{ width: "20px", height: "20px" }} alt="Arrow" />
-                        <span className="me-3">Sawan Sale</span>
-                        <img src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/WqsbpufRVU/m3pjo81t_expires_30_days.png"} className="me-3" style={{ width: "20px", height: "20px" }} alt="Arrow" />
-                        <span className="me-3">Astro Stone</span>
-                        <img src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/WqsbpufRVU/9qfvy7ii_expires_30_days.png"} className="me-3" style={{ width: "20px", height: "20px" }} alt="Arrow" />
-                        <span className="me-3">Festival</span>
-                        <img src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/WqsbpufRVU/zc73xk90_expires_30_days.png"} style={{ width: "20px", height: "20px" }} alt="Arrow" />
-                    </div>
-                    <div className='col-12 col-md-3 col-lg-3 d-flex justify-content-end'>
-                        <div className="d-flex gap-2">
-                            <img src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/WqsbpufRVU/usti218l_expires_30_days.png"} className="img-fluid" style={{ width: "30px", height: "30px" }} alt="Icon" />
-                            <img src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/WqsbpufRVU/rdyh30hu_expires_30_days.png"} className="img-fluid" style={{ width: "30px", height: "30px" }} alt="Icon" />
-                            <img src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/WqsbpufRVU/206cicc1_expires_30_days.png"} className="img-fluid" style={{ width: "30px", height: "30px" }} alt="Icon" />
+    // tab content
+    const renderContent = () => {
+        switch (activeTab) {
+            case "account":
+                return (
+                    <div >
+                        <div className="p-4 rounded" style={{ backgroundColor: "#fefaea" }}>
+                            <form onSubmit={handleSubmit} noValidate>
+                                <div className="row g-3">
+                                    <div className="col-12">
+                                        <h5 className="fw-semibold mb-3">Account Details</h5>
+                                    </div>
+
+                                    <div className="col-12 col-sm-6">
+                                        <label htmlFor="firstName" className="form-label">First name *</label>
+                                        <input
+                                            id="firstName"
+                                            name="firstName"
+                                            type="text"
+                                            className={`form-control ${errors.firstName ? "is-invalid" : ""}`}
+                                            placeholder="First name"
+                                            value={form.firstName}
+                                            onChange={handleChange}
+                                        />
+                                        {renderError("firstName")}
+                                    </div>
+
+                                    <div className="col-12 col-sm-6">
+                                        <label htmlFor="lastName" className="form-label">Last name *</label>
+                                        <input
+                                            id="lastName"
+                                            name="lastName"
+                                            type="text"
+                                            className={`form-control ${errors.lastName ? "is-invalid" : ""}`}
+                                            placeholder="Last name"
+                                            value={form.lastName}
+                                            onChange={handleChange}
+                                        />
+                                        {renderError("lastName")}
+                                    </div>
+
+                                    <div className="col-12">
+                                        <label htmlFor="displayName" className="form-label">Display name *</label>
+                                        <input
+                                            id="displayName"
+                                            name="displayName"
+                                            type="text"
+                                            className={`form-control ${errors.displayName ? "is-invalid" : ""}`}
+                                            placeholder="Display name"
+                                            value={form.displayName}
+                                            onChange={handleChange}
+                                        />
+                                        <div className="form-text">
+                                            This will be how your name will be displayed in the account section and in reviews
+                                        </div>
+                                        {renderError("displayName")}
+                                    </div>
+
+                                    <div className="col-12">
+                                        <label htmlFor="email" className="form-label">Email *</label>
+                                        <input
+                                            id="email"
+                                            name="email"
+                                            type="email"
+                                            className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                                            placeholder="Email"
+                                            value={form.email}
+                                            onChange={handleChange}
+                                        />
+                                        {renderError("email")}
+                                    </div>
+
+                                    <div className="col-12">
+                                        <hr className="my-4" />
+                                        <h5 className="fw-semibold mb-3">Password</h5>
+                                    </div>
+
+                                    <div className="col-12">
+                                        <label htmlFor="oldPassword" className="form-label">Old password</label>
+                                        <input
+                                            id="oldPassword"
+                                            name="oldPassword"
+                                            type="password"
+                                            className={`form-control ${errors.oldPassword ? "is-invalid" : ""}`}
+                                            placeholder="Old password"
+                                            value={form.oldPassword}
+                                            onChange={handleChange}
+                                            autoComplete="current-password"
+                                        />
+                                        {renderError("oldPassword")}
+                                    </div>
+
+                                    <div className="col-12">
+                                        <label htmlFor="newPassword" className="form-label">New password</label>
+                                        <input
+                                            id="newPassword"
+                                            name="newPassword"
+                                            type="password"
+                                            className={`form-control ${errors.newPassword ? "is-invalid" : ""}`}
+                                            placeholder="New password"
+                                            value={form.newPassword}
+                                            onChange={handleChange}
+                                            autoComplete="new-password"
+                                        />
+                                        {renderError("newPassword")}
+                                    </div>
+
+                                    <div className="col-12">
+                                        <label htmlFor="confirmPassword" className="form-label">Repeat new password</label>
+                                        <input
+                                            id="confirmPassword"
+                                            name="confirmPassword"
+                                            type="password"
+                                            className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
+                                            placeholder="Repeat new password"
+                                            value={form.confirmPassword}
+                                            onChange={handleChange}
+                                            autoComplete="new-password"
+                                        />
+                                        {renderError("confirmPassword")}
+                                    </div>
+
+                                    <div className="col-12">
+                                        <hr className="my-4" />
+                                        <div className="d-flex flex-column flex-sm-row gap-2 gap-sm-3">
+                                            <button type="submit" className="btn" disabled={submitting} style={{ backgroundColor: "#fd8b07" }}>
+                                                Save changes
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                </div>
-            </div> */}
+                );
 
-            {/* Page Title */}
-            <div className='text-center py-4'>
-                <h1 className="display-4 fw-bold">My Account</h1>
-            </div>
 
-            {/* Main Content - Responsive Layout */}
-            <div className='container-fluid px-3 px-md-4 pb-5'>
-                <div className='row g-4'>
-                    {/* Sidebar - Responsive */}
-                    <div className="col-12 col-lg-3">
+            case "address":
+                return (
+                    <div>
+                        <h3>Address</h3>
+                        <div className="row mt-5">
+                            {addresses.length > 0 ? (
+                                addresses.map((addr) => (
+                                    <div
+                                        key={addr.user_info_id}
+                                        className="col-5 border border-2 border-secondary p-4 m-2"
+                                        style={{ borderRadius: "1.5rem" }}
+                                    >
+                                        <div className="row">
+                                            <div className="col-8">
+                                                <h5>{addr.user_name}</h5>
+                                            </div>
+                                            <div className="col-4 btn">
+                                                <i className="bi bi-pencil-square"></i> edit
+                                            </div>
+                                        </div>
+                                        <p>
+                                            {addr.user_address}, {addr.user_city}, {addr.user_state} -{" "}
+                                            {addr.user_pincode}
+                                        </p>
+                                        <p>
+                                            Phone: {addr.user_phonenumber} <br />
+                                            Email: {addr.user_email || "N/A"}
+                                        </p>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No addresses found.</p>
+                            )}
+                        </div>
+                    </div>
+                );
+            case "orders":
+                return (
+                    <div>
+                        <h3 className="mb-4">Order History</h3>
+                        {orders.length > 0 ? (
+                            <table className="table table-striped" style={{ backgroundColor: "#fefaea" }}>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Order No</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Total Price</th>
+                                        <th>Product</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {orders.map((order, index) => (
+                                        <tr key={order.order_items_id}>
+                                            <td>{index + 1}</td>
+                                            <td>{order.order_no}</td>
+                                            <td>{order.order_date}</td>
+                                            <td>{order.status}</td>
+                                            <td>₹{order.total_price}</td>
+                                            <td>{order.product_name}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <p>No orders found.</p>
+                        )}
+                    </div>
+                );
+            case "wishlist":
+                return <div><h3>Your Wishlist</h3>
+                    <Table
+                    >
+                        <thead>
+                            <tr>
+                                <th>
+                                    Product
+                                </th>
+                                <th>
+                                    Price
+                                </th>
+                                <th>
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+
+                                <td>
+                                    Mark
+                                </td>
+                                <td>
+                                    Otto
+                                </td>
+                                <td>
+                                    <Link to="/product" className="btn btn-dark" > Add to cart</Link>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </Table></div>;
+            case "logout":
+                return <div><h3>log out</h3></div>;
+            default:
+                return <h3>Welcome to My Account</h3>;
+        }
+    };
+
+    return (
+        <div style={{ backgroundColor: "#fefaea" }}>
+            <div className="container-fluid px-3 px-md-4 pb-5">
+                <div className="row g-4">
+                    <h1 className="display-4 fw-bold text-center ">My Account</h1>
+                    {/* Sidebar */}
+                    <div className="col-12 col-lg-3 ">
                         <div className="bg-light p-4 rounded" style={{ minHeight: "600px" }}>
                             <div className="text-center">
                                 <img
@@ -129,166 +396,48 @@ const Myaccount = ({ onSubmit }) => {
                                 />
                                 <h4 className="mb-4">User</h4>
                             </div>
+                            <div className=" list-group-flush">
+                                <button
+                                    className={`list-group-item bg-transparent border-0 px-0 m-2 ${activeTab === "account" ? "fw-bold" : ""}`}
+                                    onClick={() => setActiveTab("account")}
+                                >
+                                    Account
+                                </button>
+                                <hr />
+                                <button
+                                    className={`list-group-item bg-transparent border-0 px-0  m-2 ${activeTab === "address" ? "fw-bold" : ""}`}
+                                    onClick={() => setActiveTab("address")}
+                                >
+                                    Address
+                                </button>
+                                <button
+                                    className={`list-group-item bg-transparent border-0 px-0 m-2 ${activeTab === "orders" ? "fw-bold" : ""}`}
+                                    onClick={() => setActiveTab("orders")}
+                                >
+                                    Orders
+                                </button>
+                                <button
+                                    className={`list-group-item bg-transparent border-0 px-0 m-2 ${activeTab === "wishlist" ? "fw-bold" : ""}`}
+                                    onClick={() => setActiveTab("wishlist")}
+                                >
+                                    Wishlist
+                                </button>
+                                <button className={`list-group-item bg-transparent border-0 px-0 m-2 ${activeTab === "logout" ? "fw-bold" : ""}`}
+                                    onClick={() => setActiveTab("logout")}>Log out
 
-                            <div className="list-group list-group-flush">
-                                <div className="list-group-item bg-transparent border-0 px-0">
-                                    <h5 className="mb-0 fw-bold">Account</h5>
-                                </div>
-                                <hr className="my-3" />
-                                <div className="list-group-item bg-transparent border-0 px-0">
-                                    <h6 className="mb-0 text-muted">Address</h6>
-                                </div>
-                                <div className="list-group-item bg-transparent border-0 px-0">
-                                    <h6 className="mb-0 text-muted">Orders</h6>
-                                </div>
-                                <div className="list-group-item bg-transparent border-0 px-0">
-                                    <h6 className="mb-0 text-muted">Wishlist</h6>
-                                </div>
-                                <div className="list-group-item bg-transparent border-0 px-0">
-                                    <h6 className="mb-0 text-muted">Log Out</h6>
-                                </div>
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    {/* Form Content - Responsive */}
-                    
-                        <div className="col-12 col-lg-9" >
-                            <div className=" p-4 rounded " style={{ backgroundColor: "#fefaea" }}>
-                                <form onSubmit={handleSubmit} noValidate>
-                                    <div className="row g-3">
-                                        <div className="col-12">
-                                            <h5 className="fw-semibold mb-3">Account Details</h5>
-                                        </div>
-
-                                        <div className="col-12 col-sm-6">
-                                            <label htmlFor="firstName" className="form-label">First name *</label>
-                                            <input
-                                                id="firstName"
-                                                name="firstName"
-                                                type="text"
-                                                className={`form-control ${errors.firstName ? "is-invalid" : ""}`}
-                                                placeholder="First name"
-                                                value={form.firstName}
-                                                onChange={handleChange}
-                                            />
-                                            {renderError("firstName")}
-                                        </div>
-
-                                        <div className="col-12 col-sm-6">
-                                            <label htmlFor="lastName" className="form-label">Last name *</label>
-                                            <input
-                                                id="lastName"
-                                                name="lastName"
-                                                type="text"
-                                                className={`form-control ${errors.lastName ? "is-invalid" : ""}`}
-                                                placeholder="Last name"
-                                                value={form.lastName}
-                                                onChange={handleChange}
-                                            />
-                                            {renderError("lastName")}
-                                        </div>
-
-                                        <div className="col-12">
-                                            <label htmlFor="displayName" className="form-label">Display name *</label>
-                                            <input
-                                                id="displayName"
-                                                name="displayName"
-                                                type="text"
-                                                className={`form-control ${errors.displayName ? "is-invalid" : ""}`}
-                                                placeholder="Display name"
-                                                value={form.displayName}
-                                                onChange={handleChange}
-                                            />
-                                            <div className="form-text">
-                                                This will be how your name will be displayed in the account section and in reviews
-                                            </div>
-                                            {renderError("displayName")}
-                                        </div>
-
-                                        <div className="col-12">
-                                            <label htmlFor="email" className="form-label">Email *</label>
-                                            <input
-                                                id="email"
-                                                name="email"
-                                                type="email"
-                                                className={`form-control ${errors.email ? "is-invalid" : ""}`}
-                                                placeholder="Email"
-                                                value={form.email}
-                                                onChange={handleChange}
-                                            />
-                                            {renderError("email")}
-                                        </div>
-
-                                        <div className="col-12">
-                                            <hr className="my-4" />
-                                            <h5 className="fw-semibold mb-3">Password</h5>
-                                        </div>
-
-                                        <div className="col-12 ">
-                                            <label htmlFor="oldPassword" className="form-label">Old password</label>
-                                            <input
-                                                id="oldPassword"
-                                                name="oldPassword"
-                                                type="password"
-                                                className={`form-control ${errors.oldPassword ? "is-invalid" : ""}`}
-                                                placeholder="Old password"
-                                                value={form.oldPassword}
-                                                onChange={handleChange}
-                                                autoComplete="current-password"
-                                            />
-                                            {renderError("oldPassword")}
-                                        </div>
-
-                                        <div className="col-12 ">
-                                            <label htmlFor="newPassword" className="form-label">New password</label>
-                                            <input
-                                                id="newPassword"
-                                                name="newPassword"
-                                                type="password"
-                                                className={`form-control ${errors.newPassword ? "is-invalid" : ""}`}
-                                                placeholder="New password"
-                                                value={form.newPassword}
-                                                onChange={handleChange}
-                                                autoComplete="new-password"
-                                            />
-                                            {renderError("newPassword")}
-                                        </div>
-
-                                        <div className="col-12 ">
-                                            <label htmlFor="confirmPassword" className="form-label">Repeat new password</label>
-                                            <input
-                                                id="confirmPassword"
-                                                name="confirmPassword"
-                                                type="password"
-                                                className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
-                                                placeholder="Repeat new password"
-                                                value={form.confirmPassword}
-                                                onChange={handleChange}
-                                                autoComplete="new-password"
-                                            />
-                                            {renderError("confirmPassword")}
-                                        </div>
-
-                                        <div className="col-12">
-                                            <hr className="my-4" />
-                                            <div className="d-flex flex-column flex-sm-row gap-2 gap-sm-3">
-                                                <button type="submit" className='btn' disabled={submitting} style={{ backgroundColor: "#fd8b07" }}>
-                                                    Save changes
-                                                </button>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                    {/* Content Area */}
+                    <div className="col-12 col-lg-9">
+                        {renderContent()}
+                    </div>
                 </div>
             </div>
-
         </div>
-    
-    )
-}
+    );
+};
 
-export default Myaccount
+export default Myaccount;

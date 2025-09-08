@@ -16,7 +16,7 @@ const Home = () => {
 
             </div>
 
-            <div className="row">
+            <div className="row" style={{backgroundColor:"#fefaea"}}>
                 <div className='col-2 '>
                     <img
                         src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/WqsbpufRVU/bxn4s0bj_expires_30_days.png"}
