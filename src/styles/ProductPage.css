@@ -285,3 +285,245 @@
   font-weight: 500;
   color: #3c2a65;
 }
+/* ===== Description Section ===== */
+.description {
+  margin: 50px auto;
+  text-align: center;
+  max-width: 1100px;
+}
+
+.description h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.description .tagline {
+  font-size: 1rem;
+  color: #777;
+  margin-bottom: 30px;
+  font-style: italic;
+}
+
+/* ✅ 2 above + 2 below (50-50 layout) */
+.description-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+}
+
+.desc-item {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  border-radius: 15px;
+  padding: 50px 30px;
+  color: white;
+  text-align: left;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+/* Dark gradient overlay for readability */
+.desc-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /*background: linear-gradient(to top, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.2));*/
+  border-radius: 15px;
+  z-index: 1;
+}
+
+.desc-item h4,
+.desc-item p {
+  position: relative;
+  z-index: 2;
+}
+
+.desc-item h4 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.desc-item p {
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+/* ---------- JYOTISIKA PROMISE SECTION ---------- */
+.promise {
+  text-align: center;
+  margin: 60px auto;
+  padding: 40px 20px;
+  background: #fafafa;
+  border-radius: 20px;
+  max-width: 1100px;
+}
+
+.promise .subtitle {
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.promise h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.promise .tagline {
+  font-size: 18px;
+  color: #666;
+  max-width: 700px;
+  margin: 0 auto 20px;
+}
+
+.promise .stars {
+  font-size: 20px;
+  color: #f4b400; /* golden yellow */
+  margin-bottom: 30px;
+}
+
+/* Review Carousel */
+.review-carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.review-card {
+  background: white;
+  border-radius: 16px;
+  padding: 30px 25px;
+  max-width: 400px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.review-card:hover {
+  transform: translateY(-5px);
+}
+
+.review-card img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 15px;
+  object-fit: cover;
+  border: 3px solid #f4b400;
+}
+
+.review-card h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.review-card p {
+  font-size: 15px;
+  color: #555;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.review-card span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* Carousel Buttons */
+.nav-btn {
+  background: #f4b400;
+  border: none;
+  color: white;
+  font-size: 20px;
+  padding: 12px 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.nav-btn:hover {
+  background: #e0a800;
+}
+
+/* ===== Mosaic Abstract Gallery ===== */
+.mosaic-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-auto-rows: 180px;
+  grid-auto-flow: dense;
+  gap: 0; /* no margin between blocks */
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.mosaic-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.mosaic-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.mosaic-item:hover img {
+  transform: scale(1.08);
+}
+
+/* Overlay text */
+.mosaic-item .overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(60, 42, 101, 0.6); /* dark purple tint */
+  color: #fff;
+  padding: 8px;
+  font-size: 0.8rem;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.mosaic-item:hover .overlay {
+  transform: translateY(0);
+}
+
+/* Make some blocks span multiple rows/columns for abstract look */
+.item-2 {
+  grid-row: span 2;
+}
+.item-4 {
+  grid-column: span 2;
+}
+.item-6 {
+  grid-row: span 2;
+  grid-column: span 2;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .promise h2 {
+    font-size: 26px;
+  }
+  .review-carousel {
+    flex-direction: column;
+  }
+  .nav-btn {
+    margin: 10px 0;
+  }
+}
