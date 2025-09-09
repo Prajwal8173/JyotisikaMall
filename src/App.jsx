@@ -46,7 +46,7 @@ function App() {
         {/* second  shopping page */}
         <Route path="/shop" element={<>
         < Home/>
-        < Herobanner/>
+        < HeroBanner/>
        
         < ShopSection />
         < Footer/>
