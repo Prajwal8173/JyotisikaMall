@@ -31,7 +31,7 @@ function App() {
 
         <Route path="/home" element={<>
         < Home/>
-        < Herobanner/>
+        < HeroBanner/>
         < ShopSection/>
         </>} />
           {/* <Route path="/bracelets" element={<BraceletsPage />} />
@@ -46,7 +46,7 @@ function App() {
         {/* second  shopping page */}
         <Route path="/shop" element={<>
         < Home/>
-        < HeroBanner/>
+        < Heroanner/>
        
         < ShopSection />
         < Footer/>
