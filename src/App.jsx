@@ -1,8 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 //import Home from "./components/Home";             // ✅ Import Home
 import ProductPage from "./components/ProductPage";
-import CartPage from "./components/CartPage";     // ✅ Import CartPage
-import AddressPage from "./components/AddressPage";
+import CartPage from "./components/user/cart/CartPage.jsx";     // ✅ Import CartPage
 import Home from "./components/Home";
 import Herobanner from "./components/Herobanner";
 import ShopSection from "./components/ShopSection";
