@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProductPage from "./components/ProductPage";
 import CartPage from "./components/user/cart/CartPage.jsx";     // ✅ Import CartPage
 import Home from "./components/Home";
-import Herobanner from "./components/Herobanner";
+import HeroBanner from "./components/HeroBanner";
 import ShopSection from "./components/ShopSection";
 
 import FilterSection from "./components/FilterSection";
