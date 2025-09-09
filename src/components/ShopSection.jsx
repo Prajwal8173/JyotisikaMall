@@ -1,154 +1,163 @@
 import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import FilterSection from "./FilterSection";
 
 const ShopSection = () => {
-    const [products, setProducts] = useState([]);
-    const [energyStones, setEnergyStones] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
-    // Fetch Products from PHP API
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // API call for products
-                const productRes = await axios.get(
-                    "http://localhost/User_Api_Controller/"
-                );
-                console.log("Products API Response:", productRes.data);
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [priceFilter, setPriceFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("best");
+  const [availabilityFilter, setAvailabilityFilter] = useState("all");
 
-                // API call for stones
-                const stoneRes = await axios.get("http://localhost/api/stones.php");
-                console.log("Stones API Response:", stoneRes.data);
+  const navigate = useNavigate();
 
-                // Handle array or object with `data`
-                const productData = Array.isArray(productRes.data)
-                    ? productRes.data
-                    : productRes.data.data || [];
+  // Fetch products based on category
+  useEffect(() => {
+    let apiUrl = "https://jyotisika.in/jyotisika_test/User_Api_Controller/getproduct";
+    
 
-                const stoneData = Array.isArray(stoneRes.data)
-                    ? stoneRes.data
-                    : stoneRes.data.data || [];
+    if (categoryFilter === "rudraksha") {
+      apiUrl = "https://jyotisika.in/jyotisika_test/User_Api_Controller/show_rudraksh";
+      console.log("The Data is"+apiUrl);
+    } else if (categoryFilter === "stone") {
+      apiUrl = "https://jyotisika.in/jyotisika_test/User_Api_Controller/show_energy_stones";
+    }
 
-                setProducts(productData);
-                setEnergyStones(stoneData);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
+    axios
+      .get(apiUrl)
+      .then((response) => {
+        if (response.data.status === "success" && Array.isArray(response.data.data)) {
+          setProducts(response.data.data);
+          setFilteredProducts(response.data.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+      });
+  }, [categoryFilter]);
 
-        fetchData();
-    }, []);
+  // Apply filters (price, availability, sort)
+  useEffect(() => {
+    let updated = [...products];
 
+    // Price Filter
+    if (priceFilter !== "all") {
+      updated = updated.filter((p) => {
+        const price = parseFloat(p.discount_price);
+        if (priceFilter === "0-499") return price >= 0 && price <= 499;
+        if (priceFilter === "500-999") return price >= 500 && price <= 999;
+        if (priceFilter === "1000-1999") return price >= 1000 && price <= 1999;
+        if (priceFilter === "2000+") return price >= 2000;
+        return true;
+      });
+    }
 
-    const getCurrentSlideProducts = () => {
-        return products.slice(0, 8);
-    };
+    // Availability
+    if (availabilityFilter !== "all") {
+      updated = updated.filter((p) => {
+        const stock = parseInt(p.stock || p.quantity || 0);
+        if (availabilityFilter === "in") return stock > 0;
+        if (availabilityFilter === "out") return stock === 0;
+        return true;
+      });
+    }
 
-    const getCurrentStoneProducts = () => {
-        return energyStones.slice(0, 4);
-    };
+    // Sorting
+    if (sortBy === "price-asc") {
+      updated.sort((a, b) => a.discount_price - b.discount_price);
+    } else if (sortBy === "price-desc") {
+      updated.sort((a, b) => b.discount_price - a.discount_price);
+    } else if (sortBy === "new") {
+      updated.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
 
-    return (
-        <div>
-            {/* Best Sellers */}
-            <div className="container mt-5 text-center">
-                <h1>Shop Our Best Seller</h1>
-                <div className="product-carousel-container position-relative">
-                    <div className="product-carousel-wrapper">
-                        <div className="row">
-                            {getCurrentSlideProducts().map((product, index) => (
-                                <div key={product.id || index} className="col-md-3 col-lg-3 mb-3">
-                                    <div
-                                        className={`card product-card border-0 text-center h-100 ${index === 3 ? "new-card" : ""
-                                            }`}
-                                    >
-                                        <div className="position-relative">
-                                            <img
-                                                src={product.image || "https://via.placeholder.com/200"}
-                                                className="card-img-top product-image"
-                                                alt={product.name || "Product"}
-                                            />
-                                            {product.discount && (
-                                                <span className="discount-badge">{product.discount}</span>
-                                            )}
-                                            {index === 3 && <span className="new-badge">NEW</span>}
-                                        </div>
-                                        <div className="card-body d-flex flex-column">
-                                            <h6 className="card-title">{product.name}</h6>
-                                            <div className="rating mb-2">
-                                                {[...Array(product.rating || 0)].map((_, i) => (
-                                                    <span key={i} className="star">⭐</span>
-                                                ))}
-                                            </div>
-                                            <div className="price-section mt-auto">
-                                                <span className="current-price">₹{product.price || 0}</span>
-                                                {product.originalPrice &&
-                                                    product.price !== product.originalPrice && (
-                                                        <del className="original-price">₹{product.originalPrice}</del>
-                                                    )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+    setFilteredProducts(updated);
+  }, [priceFilter, availabilityFilter, sortBy, products]);
 
-                    </div>
+  const handleAddToCart = (product) => {
+    navigate("/product");
+  };
+
+  return (
+    <div
+      className="pt-5 text-center"
+      style={{ backgroundColor: "#fefaea", padding: "20px", borderRadius: "10px", color: "#6D1D11" }}
+    >
+      {/* ✅ Filter UI */}
+      <FilterSection
+        category={categoryFilter}
+        onCategoryChange={setCategoryFilter}
+        onPriceChange={setPriceFilter}
+        onSortChange={setSortBy}
+        onAvailabilityChange={setAvailabilityFilter}
+        onClearFilters={() => {
+          setCategoryFilter("all");
+          setPriceFilter("all");
+          setSortBy("best");
+          setAvailabilityFilter("all");
+        }}
+      />
+
+      <h1>Shop Our Best Seller</h1>
+
+      {/* Products */}
+      <div className="row mt-5">
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
+            <div key={product.product_id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+
+              <div className="card product-card border-0 text-center h-100" style={{backgroundColor:"rgb(254, 250, 234)"}}>
+                <div  className="position-relative" style={{ aspectRatio: "303 / 406", width: "100%" }}>
+                  <img
+                    src={`https://jyotisika.in/jyotisika_test/uploads/products/${product.product_image}`}
+                    className="card-img-top product-image"
+                    alt={product.product_name}
+                    style={{ height: "100%", width: "100%", objectFit: "cover" }}
+                  />
                 </div>
-            </div>
-
-            {/* Energy Stones Section */}
-            <div className="container mt-5">
-                <h1 className="text-center mb-4">Energy Stones</h1>
-                <div className="product-carousel-container position-relative">
-                    <div className="product-carousel-wrapper">
-                        <div className="row">
-                            {getCurrentStoneProducts().map((stone, index) => (
-                                <div key={stone.id || index} className="col-md-3 col-lg-3 mb-3">
-                                    <div
-                                        className={`card product-card border-0 text-center h-100 ${index === 3 ? "new-card stone-card" : "stone-card"
-                                            }`}
-                                    >
-                                        <div className="position-relative">
-                                            <img
-                                                src={stone.image || "https://via.placeholder.com/200"}
-                                                className="card-img-top product-image"
-                                                alt={stone.name || "Stone"}
-                                            />
-                                            {stone.discount && (
-                                                <span className="discount-badge">{stone.discount}</span>
-                                            )}
-                                            {index === 3 && (
-                                                <span className="new-badge stone-new-badge">NEW</span>
-                                            )}
-                                        </div>
-                                        <div className="card-body d-flex flex-column">
-                                            <h6 className="card-title">{stone.name}</h6>
-                                            <div className="rating mb-2">
-                                                {[...Array(stone.rating || 0)].map((_, i) => (
-                                                    <span key={i} className="star">⭐</span>
-                                                ))}
-                                            </div>
-                                            <div className="price-section mt-auto">
-                                                <span className="current-price">
-                                                    ₹{stone.price || 0}
-                                                </span>
-                                                {stone.originalPrice &&
-                                                    stone.price !== stone.originalPrice && (
-                                                        <del className="original-price">
-                                                            ₹{stone.originalPrice}
-                                                        </del>
-                                                    )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                <div className="card-body d-flex flex-column">
+                  <h5 className="card-title">{product.product_name}</h5>
+                  <p className="small text-muted">
+                    {product.product_description?.substring(0, 50)}...
+                  </p>
+                  <div className="row">
+                    <div className="col-6">
+                      <span className="current-price">₹{product.discount_price}</span>
+                      {product.product_price !== product.discount_price && (
+                        <del className="ms-2">₹{product.product_price}</del>
+                      )}
                     </div>
+                    <div className="col-6">
+                      <button
+                        className="btn btn-warning"
+                        onClick={() => handleAddToCart(product)}
+                       
+                      >
+                        Add to Cart
+                      </button>
+                    </div>
+                  </div>
                 </div>
+              </div>
             </div>
-        </div>
-    );
+          ))
+        ) : (
+          <p>No products found.</p>
+        )}
+      </div>
+
+      <Link
+        to="/shop"
+        className="btn mt-4 border border-2 border-dark"
+        style={{ backgroundColor: "#E17100", color: "#ffffff", height: "40px", width: "220px" }}
+      >
+        View More
+      </Link>
+    </div>
+  );
 };
 
 export default ShopSection;

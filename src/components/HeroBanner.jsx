@@ -1,12 +1,13 @@
 import React from 'react'
 import home from '../assets/home.png'
+import home1 from '../assets/herosection.png'
 
 const HeroBanner = () => {
   return ( 
   
    <div
       id="carouselExampleIndicators"
-      className="carousel slide mt-4"
+      className="carousel slide "
       data-bs-ride="carousel"
     >
       <div className="carousel-indicators">
@@ -42,14 +43,14 @@ const HeroBanner = () => {
         </div>
         <div className="carousel-item">
           <img
-            src="https://via.placeholder.com/800x400.png?text=Slide+2"
+            src={home1}
             className="d-block w-100"
             alt="Slide 2"
           />
         </div>
         <div className="carousel-item">
           <img
-            src="https://via.placeholder.com/800x400.png?text=Slide+3"
+            src={home1}
             className="d-block w-100"
             alt="Slide 3"
           />
