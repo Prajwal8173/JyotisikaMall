@@ -1,160 +1,205 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import "../../../styles/ProductPage.css";
+import React, { useEffect, useState } from "react";
+import { FaTag } from "react-icons/fa";
+import { useNavigate } from "react-router-dom"; // 🔹 Import navigation hook
+import "../../../styles/CartPage.css";
 
-export default function ProductPage() {
-  const [products, setProducts] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
-  const [reviews, setReviews] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(0);
+const BASE_URL = "https://jyotisika.in/jyotisika_test/User_Api_Controller";
 
-  // 🔹 Helper to build full image path safely
-  const getImageUrl = (img) => {
-    if (!img) return null; // ✅ Prevent empty src
-    return `https://jyotisika.in/jyotisika_test/uploads/products/${img}`;
-  };
+const CartPage = () => {
+  const [cartItems, setCartItems] = useState([]);
+  const [summary, setSummary] = useState({
+    price: 0,
+    discount: 0,
+    shipping: "Free",
+    couponApplied: 0,
+    total: 0,
+    deliveryDate: "01 Feb, 2023",
+  });
 
-  // Fetch data
+  const userId = 1; // Static for now, replace with dynamic user
+  const navigate = useNavigate(); // 🔹 initialize navigation
+
+  // Fetch cart items and get product details
   useEffect(() => {
-    axios
-      .get("https://jyotisika.in/jyotisika_test/User_Api_Controller/show_rudraksh")
-      .then((res) => {
-        if (res.data.status === "success") setProducts(res.data.data);
-      })
-      .catch((err) => console.error("Error fetching products:", err));
+    fetch(`${BASE_URL}/GetCartData?user_id=${userId}`)
+      .then((res) => res.json())
+      .then(async (data) => {
+        if (data.status === "success") {
+          const productsWithDetails = await Promise.all(
+            data.data.map(async (item) => {
+              const detailRes = await fetch(
+                `${BASE_URL}/get_specific_product?product_id=${item.product_id}`
+              ).then((res) => res.json());
 
-    axios
-      .get("https://jyotisika.in/jyotisika_test/User_Api_Controller/Get_top_products")
-      .then((res) => {
-        if (res.data.status === "success") setTopProducts(res.data.data.slice(0, 4)); // ✅ only 4
-      })
-      .catch((err) => console.error("Error fetching top products:", err));
+              const productDetails = detailRes.data[0];
 
-    axios
-      .get("https://jyotisika.in/jyotisika_test/User_Api_Controller/show_product_feedback_data")
-      .then((res) => {
-        if (res.data.status === "success") setReviews(res.data.data);
+              return {
+                ...item,
+                details: {
+                  id: productDetails.product_id,
+                  name: productDetails.product_name,
+                  price: parseFloat(productDetails.product_price),
+                  color: productDetails.product_color || "Default",
+                  image: productDetails.product_image, // actual image URL
+                },
+              };
+            })
+          );
+          setCartItems(productsWithDetails);
+          calculateSummary(productsWithDetails);
+        }
       })
-      .catch((err) => console.error("Error fetching reviews:", err));
+      .catch((err) => console.error("Cart fetch error:", err));
   }, []);
 
-  if (products.length === 0) {
-    return <p>Loading product details...</p>;
-  }
+  // Calculate totals
+  const calculateSummary = (items) => {
+    const price = items.reduce(
+      (sum, item) => sum + item.details.price * item.quantity,
+      0
+    );
+    const discount = 40;
+    const total = price - discount;
+    setSummary((prev) => ({ ...prev, price, discount, total }));
+  };
 
-  const mainProduct = products[0]; // demo: first product
+  // Update quantity API
+  const updateQuantity = (id, qty) => {
+    if (qty < 1) return;
+    fetch(`${BASE_URL}/updateQuantity`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cart_id: id, quantity: qty }),
+    })
+      .then(() => {
+        const updated = cartItems.map((item) =>
+          item.id === id ? { ...item, quantity: qty } : item
+        );
+        setCartItems(updated);
+        calculateSummary(updated);
+      })
+      .catch((err) => console.error("Update quantity error:", err));
+  };
+
+  // Remove product API
+  const removeItem = (id) => {
+    fetch(`${BASE_URL}/deleteproductfromcart`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cart_id: id }),
+    })
+      .then(() => {
+        const updated = cartItems.filter((item) => item.id !== id);
+        setCartItems(updated);
+        calculateSummary(updated);
+      })
+      .catch((err) => console.error("Remove item error:", err));
+  };
 
   return (
-    <div className="product-page">
-      {/* -------- (1) Product Main Section -------- */}
-      <div className="product-main">
-        <div className="product-images">
-          {getImageUrl(mainProduct.product_image) && (
-            <img
-              src={getImageUrl(mainProduct.product_image)}
-              alt={mainProduct.product_name}
-              className="main-image"
-            />
-          )}
-          <div className="thumbnail-row">
-            {[mainProduct.product_image].map(
-              (img, i) =>
-                getImageUrl(img) && (
-                  <img
-                    key={i}
-                    src={getImageUrl(img)}
-                    alt="thumb"
-                    className={`thumb ${selectedImage === i ? "active" : ""}`}
-                    onClick={() => setSelectedImage(i)}
-                  />
-                )
-            )}
-          </div>
-        </div>
+    <div className="cart-container">
+      {/* Cart Section */}
+      <div className="cart-items">
+        <h2>
+          Cart <span>{cartItems.length} ITEMS</span>
+        </h2>
 
-        <div className="product-info">
-          <h1>{mainProduct.product_name}</h1>
-          <p className="desc">{mainProduct.product_description}</p>
-          <div className="price-section">
-            <span className="discount-price">₹{mainProduct.discount_price}</span>
-            <span className="original-price">₹{mainProduct.product_price}</span>
-          </div>
-          <div className="buttons">
-            <button className="add-to-cart">Add to Cart</button>
-            <button className="buy-now">Buy Now</button>
-          </div>
+        {cartItems.length === 0 ? (
+          <p className="empty-cart">Your cart is empty</p>
+        ) : (
+          cartItems.map((item) => (
+            <div key={item.id} className="cart-item">
+              <img src={item.details.image} alt={item.details.name} />
+              <div className="cart-item-details">
+                <h3>{item.details.name}</h3>
+                <p>
+                  Color: <span>{item.details.color}</span>
+                </p>
+                <p className="price">₹{item.details.price}</p>
+
+                {/* Quantity Controls */}
+                <div className="qty-controls">
+                  <button
+                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    disabled={item.quantity <= 1}
+                  >
+                    −
+                  </button>
+                  <span>{item.quantity}</span>
+                  <button
+                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                  >
+                    +
+                  </button>
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="remove-btn"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+
+        {/* Discount Banner */}
+        <div className="discount-banner">
+          <FaTag />
+          <p>
+            10% Instant Discount with Federal Bank Debit Cards on a min spend of
+            $150. TCA
+          </p>
         </div>
       </div>
 
-      {/* -------- (2) Description Section -------- */}
-      <section className="description">
-        <h2>Description</h2>
-        <p className="tagline">Genuine & Original</p>
-        <div className="description-grid">
-          <div className="desc-item">
-            <h4>100% Made in India</h4>
-            <p>All our products are proudly sourced and crafted in India.</p>
-          </div>
-          <div className="desc-item">
-            <h4>Return & Exchange</h4>
-            <p>Easy 7-day return and exchange policy for hassle-free shopping.</p>
-          </div>
-          <div className="desc-item">
-            <h4>Small Actions, Big Changes</h4>
-            <p>Every purchase contributes to supporting local artisans.</p>
-          </div>
-          <div className="desc-item">
-            <h4>Care Guidelines</h4>
-            <p>Follow simple steps to keep your product safe and durable.</p>
-          </div>
+      {/* Summary Section */}
+      <div className="order-summary">
+        <h3>Order Summary</h3>
+        <div className="summary-row">
+          <span>Price</span>
+          <span>₹{summary.price.toFixed(2)}</span>
         </div>
-      </section>
+        <div className="summary-row">
+          <span>Discount</span>
+          <span>₹{summary.discount}</span>
+        </div>
+        <div className="summary-row">
+          <span>Shipping</span>
+          <span>{summary.shipping}</span>
+        </div>
+        <div className="summary-row">
+          <span>Coupon Applied</span>
+          <span>₹{summary.couponApplied}</span>
+        </div>
+        <div className="total-row">
+          <span>TOTAL</span>
+          <span>₹{summary.total.toFixed(2)}</span>
+        </div>
+        <div className="delivery-date">
+          Estimated Delivery by <strong>{summary.deliveryDate}</strong>
+        </div>
 
-      {/* -------- (3) Jyotisika Promise Section -------- */}
-      <section className="promise">
-        <h2>Jyotisika Promise</h2>
-        <div className="promise-list">
-          <div className="promise-item">⭐ 100% Authentic Products</div>
-          <div className="promise-item">⭐ Certified Rudraksha</div>
-          <div className="promise-item">⭐ Handcrafted with Love</div>
-          <div className="promise-item">⭐ Trusted by 10,000+ Customers</div>
+        {/* Coupon Input */}
+        <div className="coupon-section">
+          <input type="text" placeholder="Coupon Code" />
+          <div className="coupon-offer">
+            <span>JYOTISIKA OFFER - You save ₹1499</span>
+            <button>Apply</button>
+          </div>
+          <button className="view-offers">View All Offers</button>
         </div>
-      </section>
 
-      {/* -------- (4) Top Shopseller Section -------- */}
-      <section className="related">
-        <h2>Top Shopseller</h2>
-        <div className="related-list">
-          {topProducts.map(
-            (r) =>
-              getImageUrl(r.product_image) && (
-                <div key={r.product_id} className="related-card">
-                  <img src={getImageUrl(r.product_image)} alt={r.product_name} />
-                  <h4>{r.product_name}</h4>
-                  <p>₹{r.discount_price}</p>
-                  <button>Add to Cart</button>
-                </div>
-              )
-          )}
-        </div>
-      </section>
-
-      {/* -------- (5) Reviews Section -------- */}
-      <section className="reviews">
-        <h2>{reviews.length}+ Honest Reviews</h2>
-        <div className="review-list">
-          {reviews.map(
-            (rev) =>
-              getImageUrl(rev.user_image) && (
-                <div key={rev.product_feedback_id} className="review-card">
-                  <img src={getImageUrl(rev.user_image)} alt={rev.user_name} />
-                  <p>"{rev.message}"</p>
-                  <span>- {rev.user_name}</span>
-                </div>
-              )
-          )}
-        </div>
-      </section>
+        {/* Checkout Button */}
+        <button
+          className="checkout-btn"
+          onClick={() => navigate("/address")} // 🔹 Navigate to Address page
+        >
+          Proceed to Checkout
+        </button>
+      </div>
     </div>
   );
-}
+};
+
+export default CartPage;

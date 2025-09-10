@@ -14,22 +14,26 @@ const ShopSection = () => {
 
   const navigate = useNavigate();
 
-  // Fetch products based on category
+  // Fetch products
   useEffect(() => {
-    let apiUrl = "https://jyotisika.in/jyotisika_test/User_Api_Controller/getproduct";
-    
+    let apiUrl =
+      "https://jyotisika.in/jyotisika_test/User_Api_Controller/getproduct";
 
     if (categoryFilter === "rudraksha") {
-      apiUrl = "https://jyotisika.in/jyotisika_test/User_Api_Controller/show_rudraksh";
-      console.log("The Data is"+apiUrl);
+      apiUrl =
+        "https://jyotisika.in/jyotisika_test/User_Api_Controller/show_rudraksh";
     } else if (categoryFilter === "stone") {
-      apiUrl = "https://jyotisika.in/jyotisika_test/User_Api_Controller/show_energy_stones";
+      apiUrl =
+        "https://jyotisika.in/jyotisika_test/User_Api_Controller/show_energy_stones";
     }
 
     axios
       .get(apiUrl)
       .then((response) => {
-        if (response.data.status === "success" && Array.isArray(response.data.data)) {
+        if (
+          response.data.status === "success" &&
+          Array.isArray(response.data.data)
+        ) {
           setProducts(response.data.data);
           setFilteredProducts(response.data.data);
         }
@@ -39,11 +43,10 @@ const ShopSection = () => {
       });
   }, [categoryFilter]);
 
-  // Apply filters (price, availability, sort)
+  // Apply filters
   useEffect(() => {
     let updated = [...products];
 
-    // Price Filter
     if (priceFilter !== "all") {
       updated = updated.filter((p) => {
         const price = parseFloat(p.discount_price);
@@ -55,7 +58,6 @@ const ShopSection = () => {
       });
     }
 
-    // Availability
     if (availabilityFilter !== "all") {
       updated = updated.filter((p) => {
         const stock = parseInt(p.stock || p.quantity || 0);
@@ -65,7 +67,6 @@ const ShopSection = () => {
       });
     }
 
-    // Sorting
     if (sortBy === "price-asc") {
       updated.sort((a, b) => a.discount_price - b.discount_price);
     } else if (sortBy === "price-desc") {
@@ -78,84 +79,163 @@ const ShopSection = () => {
   }, [priceFilter, availabilityFilter, sortBy, products]);
 
   const handleAddToCart = (product) => {
-    navigate("/product");
+    navigate(`/cart/${product.product_id}`, { state: { product } });
+  };
+
+  const handleViewProduct = (product) => {
+    navigate(`/product/${product.product_id}`);
   };
 
   return (
     <div
-      className="pt-5 text-center"
-      style={{ backgroundColor: "#fefaea", padding: "20px", borderRadius: "10px", color: "#6D1D11" }}
+      className="pt-5"
+      style={{
+        backgroundColor: "#fefaea",
+        borderRadius: "12px",
+        color: "#6D1D11",
+      }}
     >
-      {/* ✅ Filter UI */}
-      <FilterSection
-        category={categoryFilter}
-        onCategoryChange={setCategoryFilter}
-        onPriceChange={setPriceFilter}
-        onSortChange={setSortBy}
-        onAvailabilityChange={setAvailabilityFilter}
-        onClearFilters={() => {
-          setCategoryFilter("all");
-          setPriceFilter("all");
-          setSortBy("best");
-          setAvailabilityFilter("all");
-        }}
-      />
+      <div className="container">
+        {/* ✅ Filter Section */}
+        <FilterSection
+          category={categoryFilter}
+          onCategoryChange={setCategoryFilter}
+          onPriceChange={setPriceFilter}
+          onSortChange={setSortBy}
+          onAvailabilityChange={setAvailabilityFilter}
+          onClearFilters={() => {
+            setCategoryFilter("all");
+            setPriceFilter("all");
+            setSortBy("best");
+            setAvailabilityFilter("all");
+          }}
+        />
 
-      <h1>Shop Our Best Seller</h1>
+        {/* Heading */}
+        <div className="text-center mb-5">
+          <h1 className="fw-bold" style={{ letterSpacing: "1px" }}>
+            ✨ Shop Our Best Sellers ✨
+          </h1>
+          <p className="text-muted small">
+            Discover handpicked items curated specially for you
+          </p>
+        </div>
 
-      {/* Products */}
-      <div className="row mt-5">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <div key={product.product_id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+        {/* Product Grid */}
+        <div className="row g-4">
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => (
+              <div
+                key={product.product_id}
+                className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex"
+              >
+                <div
+                  className="card h-100 border-0 shadow-sm w-100"
+                  style={{
+                    backgroundColor: "rgb(254, 250, 234)",
+                    transition: "transform 0.3s ease",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.transform = "translateY(-6px)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.transform = "translateY(0)")
+                  }
+                >
+                  {/* Image */}
+                  <div
+                    className="position-relative"
+                    style={{
+                      aspectRatio: "303/406",
+                      width: "100%",
+                      overflow: "hidden",
+                      borderRadius: "8px 8px 0 0",
+                    }}
+                  >
+                    <img
+                      src={`https://jyotisika.in/jyotisika_test/uploads/products/${product.product_image}`}
+                      className="card-img-top"
+                      alt={product.product_name}
+                      style={{
+                        height: "100%",
+                        width: "100%",
+                        objectFit: "cover",
+                        transition: "0.4s ease",
+                      }}
+                    />
+                  </div>
 
-              <div className="card product-card border-0 text-center h-100" style={{backgroundColor:"rgb(254, 250, 234)"}}>
-                <div  className="position-relative" style={{ aspectRatio: "303 / 406", width: "100%" }}>
-                  <img
-                    src={`https://jyotisika.in/jyotisika_test/uploads/products/${product.product_image}`}
-                    className="card-img-top product-image"
-                    alt={product.product_name}
-                    style={{ height: "100%", width: "100%", objectFit: "cover" }}
-                  />
-                </div>
-                <div className="card-body d-flex flex-column">
-                  <h5 className="card-title">{product.product_name}</h5>
-                  <p className="small text-muted">
-                    {product.product_description?.substring(0, 50)}...
-                  </p>
-                  <div className="row">
-                    <div className="col-6">
-                      <span className="current-price">₹{product.discount_price}</span>
+                  {/* Card Body */}
+                  <div className="card-body d-flex flex-column text-center text-md-start">
+                    <h6 className="fw-semibold text-truncate mb-2">
+                      {product.product_name}
+                    </h6>
+                    <p className="small text-muted mb-3 d-none d-md-block">
+                      {product.product_description?.substring(0, 60)}...
+                    </p>
+
+                    {/* Price */}
+                    <div className="mb-3">
+                      <span className="fw-bold fs-6">
+                        ₹{product.discount_price}
+                      </span>
                       {product.product_price !== product.discount_price && (
-                        <del className="ms-2">₹{product.product_price}</del>
+                        <del className="ms-2 text-muted small">
+                          ₹{product.product_price}
+                        </del>
                       )}
                     </div>
-                    <div className="col-6">
+
+                    {/* Buttons */}
+                    <div className="mt-auto d-flex flex-column flex-sm-row justify-content-center gap-2">
                       <button
-                        className="btn btn-warning"
+                        className="btn btn-sm"
+                        style={{
+                          backgroundColor: "#E17100",
+                          color: "#fff",
+                          borderRadius: "20px",
+                        }}
                         onClick={() => handleAddToCart(product)}
-                       
                       >
-                        Add to Cart
+                        🛒 Add
+                      </button>
+                      <button
+                        className="btn btn-sm border"
+                        style={{
+                          borderColor: "#E17100",
+                          color: "#E17100",
+                          borderRadius: "20px",
+                        }}
+                        onClick={() => handleViewProduct(product)}
+                      >
+                        View
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <p>No products found.</p>
-        )}
-      </div>
+            ))
+          ) : (
+            <p className="text-center">No products found.</p>
+          )}
+        </div>
 
-      <Link
-        to="/shop"
-        className="btn mt-4 border border-2 border-dark"
-        style={{ backgroundColor: "#E17100", color: "#ffffff", height: "40px", width: "220px" }}
-      >
-        View More
-      </Link>
+        {/* View More */}
+        <div className="text-center mt-5">
+          <Link
+            to="/shop"
+            className="btn border border-2 border-dark px-4 py-2"
+            style={{
+              backgroundColor: "#E17100",
+              color: "#fff",
+              borderRadius: "30px",
+              fontWeight: "500",
+            }}
+          >
+            View More Products →
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };

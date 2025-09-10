@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProductPage from "./components/ProductPage";
 import CartPage from "./components/user/cart/CartPage.jsx";     // ✅ Import CartPage
 import Home from "./components/Home";
-import HeroBanner from "./components/HeroBanner";
+import Herobanner from "./components/Herobanner";
 import ShopSection from "./components/ShopSection";
 
 import FilterSection from "./components/FilterSection";
@@ -31,7 +31,7 @@ function App() {
 
         <Route path="/home" element={<>
         < Home/>
-        < HeroBanner/>
+        < Herobanner/>
         < ShopSection/>
         </>} />
           {/* <Route path="/bracelets" element={<BraceletsPage />} />
@@ -46,7 +46,7 @@ function App() {
         {/* second  shopping page */}
         <Route path="/shop" element={<>
         < Home/>
-        < HeroBanner/>
+        < Herobanner/>
        
         < ShopSection />
         < Footer/>
@@ -55,11 +55,29 @@ function App() {
         {/* User authentication */}
         <Route path="/user/login" element={<AuthPage />} />
 
-        {/* Product page */}
-        <Route path="/product" element={<ProductPage />} />
+        {/* Product page with Home + Footer */}
+        <Route
+          path="/product/:id"
+          element={
+            <>
+              <Home />
+              <ProductPage />
+              <Footer />
+            </>
+          }
+        />
 
         {/* Cart page (dynamic) */}
-        <Route path="/cart" element={<CartPage />} />
+         <Route
+          path="/cart/:id"
+          element={
+            <>
+              <Home />
+              <CartPage />
+              <Footer />
+            </>
+          }
+        />
 
         {/* Address page */}
         <Route path="/address" element={<AddressPage />} />
