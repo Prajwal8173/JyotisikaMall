@@ -4,7 +4,7 @@ import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap"
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../../styles/AuthPage.css";
 
-const BASE_URL = "https://hpclsparesportal.in/jyotisika_test/User_Api_Controller";
+const BASE_URL = "https://jyotisika.in/jyotisika_test/User_Api_Controller";
 
 export default function AuthPage() {
   const [isSignup, setIsSignup] = useState(false);
