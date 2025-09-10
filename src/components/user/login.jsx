@@ -28,13 +28,26 @@ export default function AuthPage() {
       return;
     }
     try {
-      const formData = new FormData();
-      formData.append("mobile_number", mobile);
-      if (isSignup) {
-        formData.append("action", "signin");
-      }
+      //const formData = new FormData();
+      //formData.append("mobile_number", mobile);
+      //if (isSignup) {
+      //  formData.append("action", "signin");
+      //}
 
-      const res = await axios.post(`${BASE_URL}/User_Api_Controller/sendOtpmobile`, formData);
+      //const res = await axios.post(`${BASE_URL}/User_Api_Controller/sendOtpmobile`, formData);
+
+      const payload = isSignup
+      ? { mobile_number: String(mobile), action: "signin" }
+      : { mobile_number: String(mobile) };
+
+    const res = await axios.post(`
+      ${BASE_URL}/User_Api_Controller/sendOtpmobile`,
+      payload,
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
 
       if (res.data.status === "success") {
         setOtpSent(true);
