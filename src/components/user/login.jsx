@@ -4,7 +4,7 @@ import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap"
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../../styles/AuthPage.css";
 
-const BASE_URL = "https://jyotisika.in/jyotisika_test/User_Api_Controller";
+const BASE_URL = "https://jyotisika.in/jyotisika_test/";
 
 export default function AuthPage() {
   const [isSignup, setIsSignup] = useState(false);
@@ -34,7 +34,7 @@ export default function AuthPage() {
         formData.append("action", "signin");
       }
 
-      const res = await axios.post(`${BASE_URL}/sendOtpmobile`, formData);
+      const res = await axios.post(`${BASE_URL}/User_Api_Controller/sendOtpmobile`, formData);
 
       if (res.data.status === "success") {
         setOtpSent(true);
@@ -64,7 +64,7 @@ export default function AuthPage() {
       formData.append("mobile_number", mobile);
       formData.append("otp", otp);
 
-      const res = await axios.post(`${BASE_URL}/VerifyOtp`, formData);
+      const res = await axios.post(`${BASE_URL}/User_Api_Controller/VerifyOtp`, formData);
 
       if (res.data.status === "success") {
         setStatus("success");
