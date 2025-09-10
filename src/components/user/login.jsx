@@ -71,8 +71,13 @@ export default function AuthPage() {
         setMessage("Login Successful ✅");
 
         // Save session
-        localStorage.setItem("user_id", res.data.user_id);
-        localStorage.setItem("mobile_number", mobile);
+//localStorage.setItem("user_id", res.data.user_id);
+//localStorage.setItem("mobile_number", mobile);
+sessionStorage.setItem("user_id", JSON.stringify(res.data.user_id));
+        sessionStorage.setItem(
+          "mobile_number",
+          JSON.stringify(res.data.mobile_number)
+        );
       } else {
         setStatus("danger");
         setMessage("Invalid OTP ❌");
