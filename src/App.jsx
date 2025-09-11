@@ -7,7 +7,7 @@ import Home from "./components/Home";
 import HeroBanner from "./components/HeroBanner";
 import ShopSection from "./components/ShopSection";
 import Shoppage from "./components/Shoppage.jsx";
-import ShopSection2 from "./components/shopsection2";
+import ShopSection2 from "./components/Shopsection2";
 
 import FilterSection from "./components/FilterSection";
 import Rudraksha from "./components/Rudraksha";
