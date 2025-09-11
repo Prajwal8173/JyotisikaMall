@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 //import Home from "./components/Home";             // ✅ Import Home
 import ProductPage from "./components/ProductPage";
-import CartPage from "./components/CartPage";     // ✅ Import CartPage
+  // ✅ Import CartPage
 import AddressPage from "./components/AddressPage";
 import Home from "./components/Home";
 import Herobanner from "./components/Herobanner";
@@ -56,7 +56,6 @@ function App() {
         <Route path="/product" element={<ProductPage />} />
 
         {/* Cart page (dynamic id) */}
-        <Route path="/cart/:id" element={<CartPage />} />
 
         {/* Address page */}
         <Route path="/address" element={<AddressPage />} />
