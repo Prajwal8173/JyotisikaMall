@@ -9,7 +9,7 @@ const CheckSession = () => {
     const fetchSession = async () => {
       try {
         const response = await fetch(
-          "https://jyotisika.in/jyotisika_test/User_Api_Controller/getSessionData",
+          "https://jyotisika.in/jyotisika_test//User_Api_Controller/getSessionData",
           {
             method: "GET",
             credentials: "include", // ensures cookies/session are sent
