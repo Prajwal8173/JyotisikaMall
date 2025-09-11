@@ -4,7 +4,7 @@ import ProductPage from "./components/ProductPage";
   // ✅ Import CartPage
 import AddressPage from "./components/AddressPage";
 import Home from "./components/Home";
-import Herobanner from "./components/Herobanner";
+import HeroBanner from "./components/HeroBanner";
 import ShopSection from "./components/ShopSection";
 import Shoppage from "./components/Shoppage.jsx";
 import ShopSection2 from "./components/shopsection2";
@@ -31,7 +31,7 @@ function App() {
 
         <Route path="/home" element={<>
         < Home/>
-        < Herobanner/>
+        < HeroBanner/>
         < ShopSection/>
         </>} />
           {/* <Route path="/bracelets" element={<BraceletsPage />} />
