@@ -17,6 +17,7 @@ import BraceletsPage from "./components/BraceletsPage.jsx";
 import PendantsPage from "./components/PendantsPage.jsx";
 import StonesPage from "./components/StonesPage.jsx";
 
+import CheckSession from "./components/CheckSession.jsx";
 
 import AccountForm from "./components/AccountForm.jsx";
 import AuthPage from "./components/user/login";
@@ -40,6 +41,10 @@ function App() {
 
         {/* My account page*/}
         <Route path="/myaccount" element={<> <Myaccount />
+            
+        </>} />
+
+<Route path="/checkSession" element={<> <CheckSession />
             
         </>} />
 

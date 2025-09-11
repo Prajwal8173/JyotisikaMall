@@ -6,26 +6,6 @@ const Home = () => {
   const [showSearch, setShowSearch] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const response = await fetch(
-          "https://jyotisika.in/jyotisika_test/User_Api_Controller/getSessionData",
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-
-        const data = await response.json();
-        console.log("API Response:", data);
-      } catch (error) {
-        console.error("Error fetching session:", error);
-      }
-    };
-
-    fetchSession();
-  }, []);
 
   return (
     <header className="home-header">
