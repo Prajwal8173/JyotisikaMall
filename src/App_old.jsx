@@ -1,13 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 //import Home from "./components/Home";             // ✅ Import Home
 import ProductPage from "./components/ProductPage";
-import CartPage from "./components/CartPage";     // ✅ Import CartPage
-import AddressPage from "./components/AddressPage";
+import CartPage from "./components/user/cart/CartPage.jsx";     // ✅ Import CartPage
 import Home from "./components/Home";
-import Herobanner from "./components/Herobanner";
+import HeroBanner from "./components/HeroBanner";
 import ShopSection from "./components/ShopSection";
-import Shoppage from "./components/Shoppage.jsx";
-import ShopSection2 from "./components/shopsection2";
 
 import FilterSection from "./components/FilterSection";
 import Rudraksha from "./components/Rudraksha";
@@ -20,6 +17,9 @@ import StonesPage from "./components/StonesPage.jsx";
 
 import AccountForm from "./components/AccountForm.jsx";
 import AuthPage from "./components/user/login";
+import AddressPage from './components/AddressPage'
+import ShippingPage from './components/user/ShippingPage' ;
+
 
 function App() {
   return (
@@ -31,7 +31,7 @@ function App() {
 
         <Route path="/home" element={<>
         < Home/>
-        < Herobanner/>
+        < HeroBanner/>
         < ShopSection/>
         </>} />
           {/* <Route path="/bracelets" element={<BraceletsPage />} />
@@ -45,21 +45,44 @@ function App() {
 
         {/* second  shopping page */}
         <Route path="/shop" element={<>
-          <Shoppage/>
-        < ShopSection2 />
+        < Home/>
+        < HeroBanner/>
+       
+        < ShopSection />
         < Footer/>
+
         </>} />
         {/* User authentication */}
         <Route path="/user/login" element={<AuthPage />} />
 
-        {/* Product page */}
-        <Route path="/product" element={<ProductPage />} />
+        {/* Product page with Home + Footer */}
+        <Route
+          path="/product/:id"
+          element={
+            <>
+              <Home />
+              <ProductPage />
+              <Footer />
+            </>
+          }
+        />
 
-        {/* Cart page (dynamic id) */}
-        <Route path="/cart/:id" element={<CartPage />} />
+        {/* Cart page (dynamic) */}
+         <Route
+          path="/cart/:id"
+          element={
+            <>
+              <Home />
+              <CartPage />
+              <Footer />
+            </>
+          }
+        />
 
         {/* Address page */}
         <Route path="/address" element={<AddressPage />} />
+        {/* Shipping page */}
+        <Route path="/shipping" element={<ShippingPage />} />
       </Routes>
     </Router>
   );
